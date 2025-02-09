@@ -72,6 +72,9 @@ const ComboboxInput = styled.input`
   background-color: ${palette.white};
   color: ${palette.dark};
   border: none;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 
   &::placeholder {
     color: ${palette['gray-500']};
@@ -101,7 +104,7 @@ const ComboboxListBox = styled.ul`
 `;
 
 const ComboboxOption = styled.li<{ $selected?: boolean; $disabled?: boolean; $highlighted?: boolean }>`
-  display: flex;
+  display: block;
   align-items: center;
   padding: 8px 12px;
   cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'pointer')};
@@ -110,6 +113,10 @@ const ComboboxOption = styled.li<{ $selected?: boolean; $disabled?: boolean; $hi
   $selected ? palette['gray-200'] : $highlighted ? palette['gray-100'] : 'transparent'};
   opacity: ${({ $disabled }) => ($disabled ? 0.5 : 1)};
   transition: background-color 0.2s ease;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
 
   &:hover:not([aria-disabled="true"]) {
     background-color: ${palette['gray-200']};

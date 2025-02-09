@@ -33,6 +33,7 @@ const generateGridStyles = (columns: GridProps['columns']) => {
 const StyledGrid = styled.div<{ $columns: GridProps['columns'] }>`
   display: grid;
   gap: 16px;
+  padding: 0 8px;
   ${({ $columns }) => generateGridStyles($columns)}
 `;
 
