@@ -1,8 +1,9 @@
-import React, { useState, useCallback, useMemo, ChangeEvent, useId } from 'react';
+import React, { useState, useCallback, useMemo, ChangeEvent, useId, useEffect } from 'react';
 import styled from 'styled-components';
 import { palette, fontSizes } from '../../../styles';
 import { CurrencyFormatter } from '../../../../utils';
 import { DEFAULT_LOCALE } from '../../../../constants';
+import { useDebounce } from '../../../../hooks';
 
 interface StyledProps {
   $hasError?: boolean;
@@ -122,6 +123,7 @@ export const InputAmount: React.FC<InputAmountProps> = ({
   const errorId = `${id}-error`;
   const descriptionId = `${id}-description`;
   const [rawValue, setRawValue] = useState<string>(value);
+  const debouncedValue = useDebounce(rawValue, 300);
   const formatter = useMemo(() => new CurrencyFormatter({ locale }), [locale]);
 
   const validateValue = useCallback((num: number): boolean => {
@@ -132,12 +134,17 @@ export const InputAmount: React.FC<InputAmountProps> = ({
     return !(minValue !== undefined && num < minValue);
     }, [maxValue, minValue]);
 
+  useEffect((): void => {
+    if (debouncedValue !== value && debouncedValue !== '') {
+      onChange(debouncedValue);
+    }
+  },  [debouncedValue, value, onChange]);
+
   const handleChange = useCallback((e: ChangeEvent<HTMLInputElement>): void => {
     const rawInput = e.target.value.replace(/[^0-9.]/g, '');
 
     if (rawInput === '' || rawInput === '.') {
       setRawValue(rawInput);
-      onChange(rawInput);
       return;
     }
 
@@ -146,9 +153,8 @@ export const InputAmount: React.FC<InputAmountProps> = ({
     if (!isNaN(numericValue) && validateValue(numericValue)) {
       const formatted = formatter.format(rawInput);
       setRawValue(formatted);
-      onChange(formatted);
     }
-  }, [onChange, validateValue, formatter]);
+  }, [validateValue, formatter]);
 
   const ariaDescribedbyFinal = error ? `${errorId} ${descriptionId}` : descriptionId;
 
