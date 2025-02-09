@@ -14,7 +14,6 @@ function App() {
             onChange={setAmount}
             currency="$"
             label="Enter amount"
-            onEnterPress={() => console.log('Enter pressed!')}
           />
         </GridItem>
       </Grid>

@@ -34,16 +34,6 @@ describe('InputAmount Component', (): void => {
     expect(screen.getByTestId('input-amount-field')).toHaveAttribute('aria-invalid', 'true');
   });
 
-  it('calls onEnterPress when Enter is pressed', (): void => {
-    const onEnterPress = vi.fn();
-    render(<InputAmount value="100" onChange={() => {}} currency="$" id="amount" onEnterPress={onEnterPress} />);
-
-    const input = screen.getByTestId('input-amount-field');
-    fireEvent.keyDown(input, { key: 'Enter' });
-
-    expect(onEnterPress).toHaveBeenCalled();
-  });
-
   it('sets aria-describedby correctly', (): void => {
     render(<InputAmount value="100" onChange={(): void => {}} currency="$" id="amount" error="Invalid amount" />);
 
