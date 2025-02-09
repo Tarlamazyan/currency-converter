@@ -11,6 +11,8 @@ interface GridProps {
     xl?: number;
   };
   children: React.ReactNode;
+  role?: 'grid' | 'presentation';
+  ariaLabel?: string;
 }
 
 const generateGridStyles = (columns: GridProps['columns']) => {
@@ -34,6 +36,10 @@ const StyledGrid = styled.div<{ $columns: GridProps['columns'] }>`
   ${({ $columns }) => generateGridStyles($columns)}
 `;
 
-export const Grid: React.FC<GridProps> = ({ columns, children }) => {
-  return <StyledGrid $columns={columns}>{children}</StyledGrid>;
+export const Grid: React.FC<GridProps> = ({ columns, children, role = 'presentation', ariaLabel }) => {
+  return (
+    <StyledGrid $columns={columns} role={role} aria-label={ariaLabel}>
+      {children}
+    </StyledGrid>
+  );
 };

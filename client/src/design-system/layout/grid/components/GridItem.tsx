@@ -25,6 +25,7 @@ interface GridItemProps {
     xl?: number;
   };
   children?: React.ReactNode;
+  role?: 'gridcell' | 'presentation';
 }
 
 const generateGridItemStyles = (props: GridItemProps): string => {
@@ -64,6 +65,10 @@ const StyledGridItem = styled.div<GridItemProps>`
   ${({ span, start, end }) => generateGridItemStyles({ span, start, end })}
 `;
 
-export const GridItem: React.FC<GridItemProps> = ({ span, start, end, children }) => {
-  return <StyledGridItem span={span} start={start} end={end}>{children}</StyledGridItem>;
+export const GridItem: React.FC<GridItemProps> = ({ span, start, end, children, role = 'gridcell' }) => {
+  return (
+    <StyledGridItem span={span} start={start} end={end} role={role}>
+      {children}
+    </StyledGridItem>
+  );
 };
