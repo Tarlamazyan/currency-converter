@@ -1,5 +1,5 @@
 import { GridItem } from './design-system/layout/grid/components';
-import { Grid, SelectCurrency } from './design-system';
+import { Grid, InputAmount, SelectCurrency } from './design-system';
 import { useState } from 'react';
 
 interface CurrencyOption {
@@ -16,6 +16,7 @@ function App() {
     { code: 'UAH', name: 'Ukrainian Hryvnia', flag: '🇺🇦' },
     { code: 'CAD', name: 'Canadian Dollar', flag: '🇨🇦' }
   ];
+  const [amount, setAmount] = useState('100');
 
   const [fromCurrency, setFromCurrency] = useState<CurrencyOption | null>(currencyOptions[0]);
   const [toCurrency, setToCurrency] = useState<CurrencyOption | null>(currencyOptions[1]);
@@ -35,6 +36,12 @@ function App() {
     <>
       <Grid columns={{ xs: 4, sm: 6, lg: 12 }}>
         <GridItem span={{ xs: 4, sm: 6, lg: 6 }}>
+          <InputAmount
+            value={amount}
+            onChange={setAmount}
+            currency="$"
+            label="Enter amount"
+          />
           <SelectCurrency
             id="from-currency-select"
             value={fromCurrency || { code: '', name: '', flag: '' }}
