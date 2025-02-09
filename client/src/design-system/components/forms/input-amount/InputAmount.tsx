@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo, ChangeEvent, useId, KeyboardEvent } from 'react';
+import React, { useState, useCallback, useMemo, ChangeEvent, useId } from 'react';
 import styled from 'styled-components';
 import { palette, fontSizes } from '../../../styles';
 import { CurrencyFormatter } from '../../../../utils';
@@ -115,8 +115,7 @@ export const InputAmount: React.FC<InputAmountProps> = ({
     'aria-label': ariaLabel,
     maxValue,
     minValue,
-    locale = DEFAULT_LOCALE,
-    onEnterPress
+    locale = DEFAULT_LOCALE
 }) => {
   const generatedId = useId();
   const id = providedId || generatedId;
@@ -151,12 +150,6 @@ export const InputAmount: React.FC<InputAmountProps> = ({
     }
   }, [onChange, validateValue, formatter]);
 
-  const handleKeyDown = useCallback((e: KeyboardEvent<HTMLInputElement>): void => {
-    if (e.key === 'Enter' && onEnterPress) {
-      onEnterPress();
-    }
-  }, [onEnterPress]);
-
   const ariaDescribedbyFinal = error ? `${errorId} ${descriptionId}` : descriptionId;
 
   return (
@@ -174,7 +167,6 @@ export const InputAmount: React.FC<InputAmountProps> = ({
           type="text"
           value={rawValue}
           onChange={handleChange}
-          onKeyDown={handleKeyDown}
           inputMode="decimal"
           aria-label={ariaLabel || label || `Amount in ${currency}`}
           aria-invalid={!!error}
