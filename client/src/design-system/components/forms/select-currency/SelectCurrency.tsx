@@ -218,16 +218,17 @@ export const SelectCurrency: React.FC<SelectCurrencyProps> = ({
   }, [onChange, setIsOpen, setSearch]);
 
   return (
-    <ComboboxContainer $fullWidth={fullWidth}>
+    <ComboboxContainer data-testid="combobox-container" $fullWidth={fullWidth}>
       {label && (
         <ComboboxLabel id={labelId} htmlFor={id}>
           {label}
         </ComboboxLabel>
       )}
 
-      <ComboboxControl $hasError={!!error}>
+      <ComboboxControl data-testid="combobox-control" $hasError={!!error}>
         <CurrencyFlag aria-hidden="true">{value.flag ? value.flag : '❓'}</CurrencyFlag>
         <ComboboxInput
+          data-testid="combobox-input"
           ref={inputRef}
           id={id}
           role="combobox"
@@ -248,6 +249,7 @@ export const SelectCurrency: React.FC<SelectCurrencyProps> = ({
 
       {isOpen && (
         <ComboboxListBox
+          data-testid="combobox-listbox"
           ref={listboxRef}
           id={listboxId}
           role="listbox"
@@ -265,12 +267,13 @@ export const SelectCurrency: React.FC<SelectCurrencyProps> = ({
                 role="option"
                 aria-selected={isSelected ? 'true' : undefined}
                 aria-disabled={isDisabled}
+                data-testid={`combobox-option-${option.code}`}
                 $disabled={isDisabled}
                 $highlighted={isHighlighted}
                 $selected={isSelected}
                 onClick={!isDisabled ? (): void => handleOptionClick(option) : undefined}
               >
-                <CurrencyIcon aria-hidden="true">{option.flag}</CurrencyIcon>
+                <CurrencyIcon data-testid="combobox-option-flag" aria-hidden="true">{option.flag}</CurrencyIcon>
                 {option.code} - {option.name}
               </ComboboxOption>
             );
