@@ -96,10 +96,10 @@ const ComboboxListBox = styled.ul`
   background: ${palette.white};
   border: 1px solid ${palette['gray-400']};
   border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
   max-height: 200px;
   overflow-y: auto;
-  z-index: 10;
+  z-index: 99999;
   list-style: none;
 `;
 
