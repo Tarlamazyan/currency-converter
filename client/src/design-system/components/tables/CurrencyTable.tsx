@@ -31,20 +31,16 @@ export const CurrencyTable = <T extends Record<string, unknown>>({
    sortColumn,
    sortDirection
 }: CurrencyTableProps<T>) => {
-  const tableColumns = columns || Object.keys(data[0]).map(key => ({ key, header: key }));
+  const tableColumns = columns || (data.length > 0 ? Object.keys(data[0]).map(key => ({ key, header: key })) : []);
+
 
   return (
     <TableContainer>
       <StateTable isLoading={isLoading ?? false} error={error} hasData={data.length > 0} />
-
       <TableWrapper role="region" aria-labelledby={title ? 'table-title' : undefined} tabIndex={0}>
-        <StyledTable
-          summary={summary}
-          aria-labelledby={title ? 'table-title' : undefined}
-          aria-describedby="table-description"
-        >
+        <StyledTable summary={summary} aria-labelledby={title ? 'table-title' : undefined} aria-describedby="table-description">
           {title && <caption id="table-title">{title}</caption>}
-          <TableHead>
+          <TableHead aria-label="Table Head">
             <StyledTr>
               {tableColumns.map(column => (
                 <HeaderTable
