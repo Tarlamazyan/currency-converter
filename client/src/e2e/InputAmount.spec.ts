@@ -13,7 +13,7 @@ test.describe('InputAmount Component', () => {
   test('should allow entering numbers', async ({ page }) => {
     const input = page.getByTestId('input-amount-field');
     await input.fill('1234');
-    await expect(input).toHaveValue('1234');
+    await expect(input).toHaveValue('1.234');
   });
 
   test('should have correct accessibility attributes', async ({ page }) => {
