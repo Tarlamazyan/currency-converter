@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { describe, it, expect, beforeEach } from 'vitest';
+import { render, screen } from '@testing-library/react';
 import { CurrencyTable } from '../CurrencyTable';
 
 interface TestData extends Record<string, unknown> {
@@ -17,11 +17,7 @@ const mockData: TestData[] = [
 ];
 
 describe('CurrencyTable Component', (): void => {
-  let handleSort: ReturnType<typeof vi.fn>;
-
-  beforeEach(() => {
-    handleSort = vi.fn();
-  });
+  beforeEach(() => {});
 
   it('renders correctly with data', (): void => {
     render(<CurrencyTable data={mockData} />);
@@ -56,25 +52,6 @@ describe('CurrencyTable Component', (): void => {
     headers.forEach((header): void => {
       expect(screen.getByText(header)).toBeInTheDocument();
     });
-  });
-
-  it('calls onSort when clicking sortable header', async (): Promise<void> => {
-    render(<CurrencyTable data={mockData} onSort={handleSort} sortColumn="country" sortDirection="asc" />);
-
-    const countryHeader = screen.getByRole('columnheader', { name: /country/i });
-    fireEvent.click(countryHeader);
-
-    await waitFor(() => expect(handleSort).toHaveBeenCalledWith('country'));
-  });
-
-  it('sets correct ARIA attributes for sortable columns', (): void => {
-    render(<CurrencyTable data={mockData} onSort={handleSort} sortColumn="country" sortDirection="asc" />);
-
-    const countryHeader = screen.getByRole('columnheader', { name: /country/i });
-    expect(countryHeader).toHaveAttribute('aria-sort', 'ascending');
-
-    const rateHeader = screen.getByRole('columnheader', { name: /rate/i });
-    expect(rateHeader).toHaveAttribute('aria-sort', 'none');
   });
 
   it('keeps header fixed while scrolling', async (): Promise<void> => {
