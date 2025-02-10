@@ -1,49 +1,38 @@
-import { useEffect, useState } from 'react';
 import { GridItem } from '../../design-system/layout/grid/components';
 import { Grid, InputAmount, SelectCurrency, CurrencyTable } from '../../design-system';
-import { useExchangeRates } from '../../hooks';
-
-interface CurrencyOption {
-  code: string;
-  name: string;
-  flag: string;
-}
+import { useCurrencyConverter } from './hooks';
+import { ExchangeResultDisplay } from './ExchangeResultDisplay';
 
 export function CurrencyConverter() {
-  const { data, isLoading, isError } = useExchangeRates();
+  const {
+    data,
+    isLoading,
+    isError,
+    amount,
+    setAmount,
+    toCurrency,
+    setToCurrency,
+    filterOptions,
+    convertedAmount
+  } = useCurrencyConverter();
 
-  useEffect(() => {
-    console.log('%c🚀 Exchange Rates Data:', 'color: green; font-weight: bold;', data);
-    console.log('%c🔄 Loading State:', 'color: blue; font-weight: bold;', isLoading);
-    console.log('%c❌ Error State:', 'color: red; font-weight: bold;', isError);
-  }, [data, isLoading, isError]);
+  if (isLoading) {
+    return (
+      <Grid columns={{ xs: 4, sm: 6, lg: 12 }}>
+        <GridItem span={{ xs: 4, sm: 4, lg: 12 }}>Loading exchange rates...</GridItem>
+      </Grid>
+    );
+  }
 
+  if (isError) {
+    return (
+      <Grid columns={{ xs: 4, sm: 6, lg: 12 }}>
+        <GridItem span={{ xs: 4, sm: 4, lg: 12 }}>Error loading exchange rates. Please try again later.</GridItem>
+      </Grid>
+    );
+  }
 
-  const currencyOptions: CurrencyOption[] = [
-    { code: 'USD', name: 'US Dollar', flag: '🇺🇸' },
-    { code: 'EUR', name: 'Euro', flag: '🇪🇺' },
-    { code: 'GBP', name: 'British Pound', flag: '🇬🇧' },
-    { code: 'UAH', name: 'Ukrainian Hryvnia', flag: '🇺🇦' },
-    { code: 'CAD', name: 'Canadian Dollar', flag: '🇨🇦' }
-  ];
-
-  const [amount, setAmount] = useState<string>('0');
-
-  const [fromCurrency, setFromCurrency] = useState<CurrencyOption | null>(currencyOptions[0]);
-  const [toCurrency, setToCurrency] = useState<CurrencyOption | null>(currencyOptions[1]);
-
-  const handleCurrencyChange = (setter: (value: CurrencyOption | null) => void, otherCurrency: CurrencyOption | null) =>
-    (currency: CurrencyOption | null) => {
-      if (currency && currency.code === otherCurrency?.code) {
-        setter(null);
-      }
-      setter(currency);
-    };
-
-  const filterOptions = (selectedCurrency: CurrencyOption | null) =>
-    currencyOptions.filter(option => option.code !== selectedCurrency?.code);
-
-  const formattedData: Record<string, unknown>[] = (data ?? []).map((item) => ({
+  const formattedData = (data ?? []).map(item => ({
     country: item.country,
     currency: item.currency,
     amount: item.amount,
@@ -51,15 +40,15 @@ export function CurrencyConverter() {
     rate: item.rate
   }));
 
-
   return (
     <Grid columns={{ xs: 4, sm: 6, lg: 12 }}>
       <GridItem span={{ xs: 2, sm: 2, lg: 4 }} start={{ sm: 2, lg: 3 }} end={{ sm: 4, lg: 7 }}>
         <SelectCurrency
           id="from-currency-select"
-          value={fromCurrency || { code: '', name: '', flag: '' }}
-          onChange={handleCurrencyChange(setFromCurrency, toCurrency)}
-          options={filterOptions(toCurrency)}
+          value={{ code: 'CZK', name: 'Czech Koruna', flag: '' }}
+          onChange={() => {}}
+          options={[{ code: 'CZK', name: 'Czech Koruna', flag: '' }]}
+          disabledOption="CZK"
           label="From"
         />
       </GridItem>
@@ -68,22 +57,25 @@ export function CurrencyConverter() {
         <SelectCurrency
           id="to-currency-select"
           value={toCurrency || { code: '', name: '', flag: '' }}
-          onChange={handleCurrencyChange(setToCurrency, fromCurrency)}
-          options={filterOptions(fromCurrency)}
+          onChange={setToCurrency}
+          options={filterOptions()}
           label="To"
         />
       </GridItem>
 
       <GridItem span={{ xs: 4, sm: 4, lg: 6 }} start={{ sm: 2, lg: 3 }} end={{ sm: 6, lg: 11 }}>
-        <InputAmount
-          value={amount}
-          onChange={setAmount}
-          currency="$"
-          label="Enter amount"
+        <InputAmount value={amount} onChange={setAmount} currency="CZK" label="Enter amount" />
+      </GridItem>
+
+      <GridItem span={{ xs: 4, sm: 4, lg: 6 }} start={{ sm: 2, lg: 3 }} end={{ sm: 6, lg: 11 }}>
+        <ExchangeResultDisplay
+          integerPart={convertedAmount.integerPart}
+          decimalPart={convertedAmount.decimalPart}
+          currencyCode={toCurrency?.code}
         />
       </GridItem>
 
-      <GridItem  span={{ xs: 4, sm: 4, lg: 6 }} start={{ sm: 2, lg: 3 }} end={{ sm: 6, lg: 11 }}>
+      <GridItem span={{ xs: 4, sm: 4, lg: 6 }} start={{ sm: 2, lg: 3 }} end={{ sm: 6, lg: 11 }}>
         {formattedData.length > 0 && <CurrencyTable data={formattedData} />}
       </GridItem>
     </Grid>

@@ -1,7 +1,6 @@
-import React, { useState, useCallback, useMemo, ChangeEvent, useId, useEffect } from 'react';
+import React, { useState, useCallback, ChangeEvent, useId, useEffect } from 'react';
 import styled from 'styled-components';
 import { palette, fontSizes } from '../../../styles';
-import { CurrencyFormatter } from '../../../../utils';
 import { DEFAULT_LOCALE } from '../../../../constants';
 import { useDebounce } from '../../../../hooks';
 
@@ -124,7 +123,6 @@ export const InputAmount: React.FC<InputAmountProps> = ({
   const descriptionId = `${id}-description`;
   const [rawValue, setRawValue] = useState<string>(value);
   const debouncedValue = useDebounce(rawValue, 300);
-  const formatter = useMemo(() => new CurrencyFormatter({ locale }), [locale]);
 
   const validateValue = useCallback((num: number): boolean => {
     if (maxValue !== undefined && num > maxValue) {
@@ -151,10 +149,10 @@ export const InputAmount: React.FC<InputAmountProps> = ({
     const numericValue = parseFloat(rawInput);
 
     if (!isNaN(numericValue) && validateValue(numericValue)) {
-      const formatted = formatter.format(rawInput);
+      const formatted = new Intl.NumberFormat(locale, { useGrouping: false }).format(numericValue);
       setRawValue(formatted);
     }
-  }, [validateValue, formatter]);
+  }, [validateValue, locale]);
 
   const ariaDescribedbyFinal = error ? `${errorId} ${descriptionId}` : descriptionId;
 
