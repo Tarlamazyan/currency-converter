@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { GridItem } from '../../design-system/layout/grid/components';
 import { Grid, InputAmount, SelectCurrency } from '../../design-system';
+import { useExchangeRates } from '../../hooks';
 
 interface CurrencyOption {
   code: string;
@@ -9,6 +10,15 @@ interface CurrencyOption {
 }
 
 export function CurrencyConverter() {
+  const { data, isLoading, isError } = useExchangeRates();
+
+  useEffect(() => {
+    console.log('%c🚀 Exchange Rates Data:', 'color: green; font-weight: bold;', data);
+    console.log('%c🔄 Loading State:', 'color: blue; font-weight: bold;', isLoading);
+    console.log('%c❌ Error State:', 'color: red; font-weight: bold;', isError);
+  }, [data, isLoading, isError]);
+
+
   const currencyOptions: CurrencyOption[] = [
     { code: 'USD', name: 'US Dollar', flag: '🇺🇸' },
     { code: 'EUR', name: 'Euro', flag: '🇪🇺' },
