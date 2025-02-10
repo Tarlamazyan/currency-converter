@@ -18,7 +18,7 @@ export const StyledTable = styled.table`
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  font-size: ${fontSizes.base};
+  ${fontSizes.base};
   text-align: left;
   min-width: 600px;
 `;
@@ -50,7 +50,6 @@ export const StyledTr = styled.tr`
   }
 
   @media (max-width: 768px) {
-    display: block;
     margin-bottom: 16px;
     border: 1px solid ${palette['gray-400']};
   }
