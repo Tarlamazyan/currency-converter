@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { TableWrapper, StyledTable, StyledTr, TableContainer, TableHead } from './Table.styles';
 import { HeaderTable, CellTable, StateTable } from './components';
 
@@ -21,18 +21,32 @@ interface CurrencyTableProps<T extends Record<string, unknown>> {
 }
 
 export const CurrencyTable = <T extends Record<string, unknown>>({
-   data,
-   columns,
-   title,
-   summary,
-   isLoading,
-   error,
-   onSort,
-   sortColumn,
-   sortDirection
+  data,
+  columns,
+  title,
+  summary,
+  isLoading,
+  error
+
 }: CurrencyTableProps<T>) => {
+  const [sortedData, setSortedData] = useState(data);
+  const [sortColumnState, setSortColumn] = useState<keyof T | undefined>(undefined);
+  const [sortDirectionState, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const tableColumns = columns || (data.length > 0 ? Object.keys(data[0]).map(key => ({ key, header: key })) : []);
 
+  const handleSort = (columnKey: keyof T) => {
+    const newDirection = sortColumnState === columnKey && sortDirectionState === 'asc' ? 'desc' : 'asc';
+
+    const sorted = [...sortedData].sort((a, b) => {
+      if (a[columnKey] < b[columnKey]) return newDirection === 'asc' ? -1 : 1;
+      if (a[columnKey] > b[columnKey]) return newDirection === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    setSortedData(sorted);
+    setSortColumn(columnKey);
+    setSortDirection(newDirection);
+  };
 
   return (
     <TableContainer>
@@ -46,15 +60,15 @@ export const CurrencyTable = <T extends Record<string, unknown>>({
                 <HeaderTable
                   key={column.key as string}
                   column={column}
-                  onSort={onSort}
-                  sortColumn={sortColumn}
-                  sortDirection={sortDirection}
+                  onSort={() => handleSort(column.key)}
+                  sortColumn={sortColumnState}
+                  sortDirection={sortDirectionState}
                 />
               ))}
             </StyledTr>
           </TableHead>
           <tbody>
-          {data.map((item, rowIndex) => (
+          {sortedData.map((item, rowIndex) => (
             <StyledTr key={rowIndex}>
               {tableColumns.map(column => (
                 <CellTable key={column.key as string} column={column} value={item[column.key]} />
