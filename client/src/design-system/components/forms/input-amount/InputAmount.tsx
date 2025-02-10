@@ -1,7 +1,12 @@
-import React, { useState, useCallback, ChangeEvent, useId, useEffect } from 'react';
+import React, {
+  useState,
+  useCallback,
+  ChangeEvent,
+  useId,
+  useEffect
+} from 'react';
 import styled from 'styled-components';
 import { palette, fontSizes } from '../../../styles';
-import { DEFAULT_LOCALE } from '../../../../constants';
 import { useDebounce } from '../../../../hooks';
 
 interface StyledProps {
@@ -47,8 +52,9 @@ const Input = styled.input<StyledProps>`
   font-weight: 600;
   border: none;
   outline: none;
-  background-color: ${({ disabled }) => disabled ? palette['gray-200'] : palette.white};
-  color: ${({ disabled }) => disabled ? palette['gray-600'] : palette.dark};
+  background-color: ${({ disabled }) =>
+      disabled ? palette['gray-200'] : palette.white};
+  color: ${({ disabled }) => (disabled ? palette['gray-600'] : palette.dark)};
   text-align: left;
 
   &:focus {
@@ -70,13 +76,16 @@ const InputWithPrefix = styled.div<StyledProps>`
   display: flex;
   align-items: center;
   width: 100%;
-  border: 2px solid ${({ $hasError }) => ($hasError ? palette.danger : palette['gray-400'])};
+  border: 2px solid
+  ${({ $hasError }) => ($hasError ? palette.danger : palette['gray-400'])};
   border-radius: 8px;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
   &:focus-within {
-    border-color: ${({ $hasError }) => ($hasError ? palette.danger : palette.primary)};
-    box-shadow: 0 0 0 1px ${({ $hasError }) => ($hasError ? palette.danger : palette.primary)};
+    border-color: ${({ $hasError }) =>
+        $hasError ? palette.danger : palette.primary};
+    box-shadow: 0 0 0 1px
+    ${({ $hasError }) => ($hasError ? palette.danger : palette.primary)};
   }
 `;
 
@@ -103,58 +112,118 @@ const ScreenReaderOnly = styled.span`
   border: 0;
 `;
 
+const formatNormalized = (normalized: string): string => {
+  if (normalized === '' || normalized === '.') {
+    return normalized;
+  }
+
+  const parts = normalized.split('.');
+  let integerPart = parts[0];
+
+  if (integerPart !== '') {
+    integerPart = String(parseInt(integerPart, 10));
+    integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  }
+  return parts.length > 1 ? integerPart + '.' + parts[1] : integerPart;
+};
+
+const parseInput = (input: string, previous: string): string => {
+  if (input === '') return '';
+
+  if (input[0] === '.') {
+    const rest = input.slice(1).replace(/\./g, '');
+    return '.' + rest;
+  }
+
+  if (input.endsWith('.') && !previous.includes('.')) {
+    return input.replace(/\./g, '') + '.';
+  }
+
+  if (previous.includes('.') || input.indexOf('.') !== input.lastIndexOf('.')) {
+    const lastDotIndex = input.lastIndexOf('.');
+    const fractionLength = input.length - lastDotIndex - 1;
+    const allDigits = input.replace(/\./g, '');
+
+    if (fractionLength > 0) {
+      const integerPart = allDigits.slice(0, allDigits.length - fractionLength);
+      const fractionalPart = allDigits.slice(allDigits.length - fractionLength);
+      return integerPart + '.' + fractionalPart;
+    }
+    return allDigits + '.';
+  }
+
+  return input.replace(/\./g, '');
+};
+
 export const InputAmount: React.FC<InputAmountProps> = ({
-    value,
-    onChange,
-    currency,
-    label,
-    id: providedId,
-    error,
-    fullWidth = true,
-    disabled = false,
-    'aria-label': ariaLabel,
-    maxValue,
-    minValue,
-    locale = DEFAULT_LOCALE
+  value,
+  onChange,
+  currency,
+  label,
+  id: providedId,
+  error,
+  fullWidth = true,
+  disabled = false,
+  'aria-label': ariaLabel,
+  maxValue,
+  minValue,
+  onEnterPress
 }) => {
   const generatedId = useId();
   const id = providedId || generatedId;
   const errorId = `${id}-error`;
   const descriptionId = `${id}-description`;
-  const [rawValue, setRawValue] = useState<string>(value);
-  const debouncedValue = useDebounce(rawValue, 300);
+  const [rawNormalized, setRawNormalized] = useState<string>(value);
+  const debouncedValue = useDebounce(rawNormalized, 300);
 
   const validateValue = useCallback((num: number): boolean => {
-    if (maxValue !== undefined && num > maxValue) {
-      return false;
-    }
-
-    return !(minValue !== undefined && num < minValue);
-    }, [maxValue, minValue]);
+    if (maxValue !== undefined && num > maxValue) return false;
+    if (minValue !== undefined && num < minValue) return false;
+    return true;
+  }, [maxValue, minValue]);
 
   useEffect((): void => {
     if (debouncedValue !== value && debouncedValue !== '') {
-      onChange(debouncedValue);
+      const num = parseFloat(debouncedValue);
+      if (!isNaN(num) && validateValue(num)) {
+        onChange(debouncedValue);
+      } else {
+        onChange(debouncedValue);
+      }
     }
-  },  [debouncedValue, value, onChange]);
+  }, [debouncedValue, value, onChange, validateValue]);
 
   const handleChange = useCallback((e: ChangeEvent<HTMLInputElement>): void => {
-    const rawInput = e.target.value.replace(/[^0-9.]/g, '');
+    const input = e.target.value;
+    const selectionStart = e.target.selectionStart;
+    const selectionEnd = e.target.selectionEnd;
+    const isFullSelection =
+      selectionStart !== null &&
+      selectionEnd !== null &&
+      selectionStart === 0 &&
+      selectionEnd === input.length;
 
-    if (rawInput === '' || rawInput === '.') {
-      setRawValue(rawInput);
-      return;
+    let newNormalized: string;
+    if (isFullSelection) {
+      newNormalized = input.replace(/\./g, '');
+    } else {
+      newNormalized = parseInput(input, rawNormalized);
     }
+    setRawNormalized(newNormalized);
+  }, [rawNormalized]);
 
-    const numericValue = parseFloat(rawInput);
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter' && onEnterPress) {
+        onEnterPress();
+      }
+    },
+    [onEnterPress]
+  );
 
-    if (!isNaN(numericValue) && validateValue(numericValue)) {
-      const formatted = new Intl.NumberFormat(locale, { useGrouping: false }).format(numericValue);
-      setRawValue(formatted);
-    }
-  }, [validateValue, locale]);
-
-  const ariaDescribedbyFinal = error ? `${errorId} ${descriptionId}` : descriptionId;
+  const ariaDescribedbyFinal = error
+    ? `${errorId} ${descriptionId}`
+    : descriptionId;
 
   return (
     <InputWrapper
@@ -169,8 +238,9 @@ export const InputAmount: React.FC<InputAmountProps> = ({
         <Input
           id={id}
           type="text"
-          value={rawValue}
+          value={formatNormalized(rawNormalized)}
           onChange={handleChange}
+          onKeyDown={handleKeyDown}
           inputMode="decimal"
           aria-label={ariaLabel || label || `Amount in ${currency}`}
           aria-invalid={!!error}
@@ -186,12 +256,13 @@ export const InputAmount: React.FC<InputAmountProps> = ({
         </ErrorText>
       )}
       <ScreenReaderOnly id={descriptionId}>
-        {`Enter amount in ${currency}. Use numbers and decimal point only. ${
-          maxValue !== undefined ? `Maximum value is ${maxValue}.` : ''
-        } ${
-          minValue !== undefined ? `Minimum value is ${minValue}.` : ''
-        }`}
+        {`Enter the amount in ${currency}. Use only digits and, if necessary, a dot for the fractional part. ${maxValue !== undefined
+          ? `The maximum value is ${maxValue}.`
+          : ''} ${minValue !== undefined
+            ? `The minimum value is ${minValue}.`
+            : ''}`}
       </ScreenReaderOnly>
     </InputWrapper>
   );
 };
+

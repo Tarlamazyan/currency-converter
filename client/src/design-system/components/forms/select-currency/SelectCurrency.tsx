@@ -233,7 +233,7 @@ export const SelectCurrency: React.FC<SelectCurrencyProps> = ({
       )}
 
       <ComboboxControl data-testid="combobox-control" $hasError={!!error}>
-        <CurrencyFlag aria-hidden="true">{value.flag ? value.flag : '❓'}</CurrencyFlag>
+        <CurrencyFlag aria-hidden="true">{value.flag ? value.flag : '🏦'}</CurrencyFlag>
         <ComboboxInput
           data-testid="combobox-input"
           ref={inputRef}
