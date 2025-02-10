@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { GridItem } from '../../design-system/layout/grid/components';
-import { Grid, InputAmount, SelectCurrency } from '../../design-system';
+import { Grid, InputAmount, SelectCurrency, CurrencyTable } from '../../design-system';
 import { useExchangeRates } from '../../hooks';
 
 interface CurrencyOption {
@@ -43,6 +43,15 @@ export function CurrencyConverter() {
   const filterOptions = (selectedCurrency: CurrencyOption | null) =>
     currencyOptions.filter(option => option.code !== selectedCurrency?.code);
 
+  const formattedData: Record<string, unknown>[] = (data ?? []).map((item) => ({
+    country: item.country,
+    currency: item.currency,
+    amount: item.amount,
+    code: item.code,
+    rate: item.rate
+  }));
+
+
   return (
     <Grid columns={{ xs: 4, sm: 6, lg: 12 }}>
       <GridItem span={{ xs: 2, sm: 2, lg: 4 }} start={{ sm: 2, lg: 3 }} end={{ sm: 4, lg: 7 }}>
@@ -72,6 +81,10 @@ export function CurrencyConverter() {
           currency="$"
           label="Enter amount"
         />
+      </GridItem>
+
+      <GridItem  span={{ xs: 4, sm: 4, lg: 6 }} start={{ sm: 2, lg: 3 }} end={{ sm: 6, lg: 11 }}>
+        {formattedData.length > 0 && <CurrencyTable data={formattedData} />}
       </GridItem>
     </Grid>
   );
