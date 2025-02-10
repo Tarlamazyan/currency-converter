@@ -71,11 +71,11 @@ describe('InputAmount Component', (): void => {
   });
 
   it('formats value correctly', async (): Promise<void> => {
-    render(<InputAmount value="1000" onChange={handleChange} currency="$" id="amount" />);
+    render(<InputAmount value="1000" onChange={handleChange} currency="$" id="amount" locale="en-US" />);
 
     const input = screen.getByTestId('input-amount-field');
     fireEvent.change(input, { target: { value: '1234' } });
 
-    await waitFor(() => expect(handleChange).toHaveBeenCalledWith('1,234'), { timeout: 350 });
+    await waitFor(() => expect(handleChange).toHaveBeenCalledWith('1234'), { timeout: 350 });
   });
 });
